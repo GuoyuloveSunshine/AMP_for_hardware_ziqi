@@ -54,7 +54,7 @@ class AMPLoader:
             data_dir='',
             preload_transitions=False,
             num_preload_transitions=1000000,
-            motion_files=glob.glob('datasets/motion_files2/*'),
+            motion_files=glob.glob('datasets/mocap_motions/*'),
             ):
         """Expert dataset provides AMP observations from Dog mocap dataset.
 
@@ -206,7 +206,7 @@ class AMPLoader:
         """Returns frame for the given trajectory at the specified time."""
         p = times / self.trajectory_lens[traj_idxs]
         n = self.trajectory_num_frames[traj_idxs]
-        idx_low, idx_high = np.floor(p * n).astype(np.int), np.ceil(p * n).astype(np.int)
+        idx_low, idx_high = np.floor(p * n).astype(np.int32), np.ceil(p * n).astype(np.int32)
         all_frame_starts = torch.zeros(len(traj_idxs), self.observation_dim, device=self.device)
         all_frame_ends = torch.zeros(len(traj_idxs), self.observation_dim, device=self.device)
         for traj_idx in set(traj_idxs):
@@ -230,7 +230,7 @@ class AMPLoader:
     def get_full_frame_at_time_batch(self, traj_idxs, times):
         p = times / self.trajectory_lens[traj_idxs]
         n = self.trajectory_num_frames[traj_idxs]
-        idx_low, idx_high = np.floor(p * n).astype(np.int), np.ceil(p * n).astype(np.int)
+        idx_low, idx_high = np.floor(p * n).astype(np.int32), np.ceil(p * n).astype(np.int32)
         all_frame_pos_starts = torch.zeros(len(traj_idxs), AMPLoader.POS_SIZE, device=self.device)
         all_frame_pos_ends = torch.zeros(len(traj_idxs), AMPLoader.POS_SIZE, device=self.device)
         all_frame_rot_starts = torch.zeros(len(traj_idxs), AMPLoader.ROT_SIZE, device=self.device)
@@ -395,3 +395,11 @@ class AMPLoader:
 
     def get_tar_toe_vel_local_batch(poses):
         return poses[:, AMPLoader.TAR_TOE_VEL_LOCAL_START_IDX:AMPLoader.TAR_TOE_VEL_LOCAL_END_IDX]
+    
+if __name__=="__main__":
+    dataloader = AMPLoader(device="cpu", time_between_frames=0.021,preload_transitions=False)
+    print(dataloader.observation_dim)
+    # print(len(dataloader.trajectories_full))
+    # print(dataloader.preloaded_s.shape)
+    # for i,j in dataloader.feed_forward_generator(10,2):
+    #     print(i.shape,j.shape)
