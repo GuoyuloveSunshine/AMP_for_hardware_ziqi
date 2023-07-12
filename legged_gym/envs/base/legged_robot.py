@@ -431,6 +431,7 @@ class LeggedRobot(BaseTask):
             [torch.Tensor]: Torques sent to the simulation
         """
         #pd controller
+        print("actions:",actions)
         actions_scaled = actions * self.cfg.control.action_scale
         control_type = self.cfg.control.control_type
 
